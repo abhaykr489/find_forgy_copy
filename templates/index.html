@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <title>Forgery Detection App</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Forgery Detection App</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="file" id="fileInput" required>
+            <button id="submitBtn" type="submit">Detect Forgery</button>
+        </form>
+        <div id="result" class="message"></div>
+        <div id="imagePreviewContainer">
+            <div id="imagePreview"></div>
+        </div>
+        <div id="forgeryInfo"></div> <!-- New div to display forgery information -->
+    </div>
+</body>
+</html>

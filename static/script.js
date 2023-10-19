@@ -11,7 +11,7 @@ $(document).ready(function(){
         reader.readAsDataURL(input.files[0]);
     });
 
-    $('#uploadForm').submit(function(event){
+    $('#fileInput').on('change', function(event){
         event.preventDefault();
 
         if (isProcessing) {
@@ -30,28 +30,50 @@ $(document).ready(function(){
             processData: false,
             contentType: false,
             success: function(response){
-                if (response.error) {
-                    var errorMessage = (response.responseJSON && response.responseJSON.error) ? response.responseJSON.error : 'Unknown error occurred.';
-                    $('#result').html('<p class="error">Error: ' + errorMessage + '</p>');
-                } else {
-                    var formattedForgeryType = response.forgery_type.replace(/, /g, '-').replace(/,([^,]*)$/, '-$1');
-                    $('#result').html('<p class="success">Forgery detected successfully. Accuracy: ' + response.accuracy.toFixed(2) + '%, Type of forgery: ' + formattedForgeryType + ', ' + response.forgery_percentage.toFixed(2) + '%</p>');
+                console.log(response); //debug
+                // Inside the success callback function
+                if (response.forgery_areas && response.forgery_areas.length > 0) {
+                    // Loop through forgery areas and draw colored rectangles
+                    response.forgery_areas.forEach(function(area, index) {
+                        var forgeryArea = area[0];
+                        var color = area[1];
 
-                    if (response.forgery_image_data) {
-                        // If forgery image data is available, display the modified image with forgery areas
-                        $('#imagePreview').html('<img src="data:image/jpeg;base64,' + response.forgery_image_data + '" alt="Modified Image">');
-                    } else if (response.marked_image_path) {
-                        // If marked image path is available, display the modified image with forgery areas
-                        $('#imagePreview').html('<img src="' + response.marked_image_path + '" alt="Modified Image">');
-                    }
-                    // Display forgery information (percentage and types)
-                    $('#forgeryInfo').html('<p>Forgery Percentage: ' + response.forgery_percentage.toFixed(2) + '%</p>');
-                    $('#forgeryInfo').append('<p>Forgery Types: ' + response.forgery_type + '</p>');
+                        var x = forgeryArea[0];
+                        var y = forgeryArea[1];
+                        var width = forgeryArea[2] - x;
+                        var height = forgeryArea[3] - y;
+
+                        // Draw colored rectangles for forgery areas
+                        var canvas = document.createElement('canvas');
+                        canvas.width = $('#imagePreview img').width();
+                        canvas.height = $('#imagePreview img').height();
+                        var ctx = canvas.getContext('2d');
+                        ctx.strokeStyle = color; // Set the rectangle color
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(x, y, width, height);
+
+                        // Append the canvas element to the imagePreviewContainer
+                        $('#imagePreviewContainer').append(canvas);
+                    });
                 }
+
+                // Display forgery types
+                if (response.forgery_type) {
+                    $('#result').html('<p class="success">Forgery Detected: ' + response.forgery_type + '</p>');
+                } else {
+                    $('#result').html('<p class="success">No forgery detected.</p>');
+                }
+
+                // Display original and forgery images side by side
+                var originalImage = '<img src="' + $('#imagePreview img').attr('src') + '" alt="Original Image">';
+                var forgeryImage = '<img src="' + response.forgery_image_path + '" alt="Forgery Image">';
+                $('#imageContainer').html(originalImage + forgeryImage);
+
                 isProcessing = false;
                 $('#submitBtn').prop('disabled', false); // Re-enable the submit button
             },
             error: function(error){
+                console.log(error); // debug
                 var errorMessage = (error.responseJSON && error.responseJSON.error) ? error.responseJSON.error : 'Unknown error occurred.';
                 $('#result').html('<p class="error">Error: ' + errorMessage + '</p>');
                 isProcessing = false;

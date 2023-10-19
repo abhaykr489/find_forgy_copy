@@ -11,15 +11,22 @@
 <body>
     <div class="container">
         <h1>Forgery Detection App</h1>
+
+        <!-- Add the form with enctype attribute set to "multipart/form-data" -->
         <form id="uploadForm" enctype="multipart/form-data">
-            <input type="file" name="file" id="fileInput" required>
-            <button id="submitBtn" type="submit">Detect Forgery</button>
+            <div class="upload-section">
+                <label for="fileInput" class="upload-label">Choose a document:</label>
+                <input type="file" name="file" id="fileInput" required>
+                <button id="submitBtn" type="button">Detect Forgery</button>
+            </div>
         </form>
+
         <div id="result" class="message"></div>
-        <div id="imagePreviewContainer">
-            <div id="imagePreview"></div>
+        <div id="imagePreviewContainer" class="image-container">
+            <div id="originalImagePreview"></div>
+            <div id="forgeryImagePreview"></div>
         </div>
-        <div id="forgeryInfo"></div> <!-- New div to display forgery information -->
+        <div id="forgeryInfo" class="forgery-info"></div>
     </div>
 </body>
 </html>
